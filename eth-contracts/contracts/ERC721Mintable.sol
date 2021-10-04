@@ -14,9 +14,30 @@ contract Ownable {
     //  4) fill out the transferOwnership function
     //  5) create an event that emits anytime ownerShip is transfered (including in the constructor)
 
+    address private _owner;
+
+    event OwnershipTransferred( address previousOwner, address newOwner);
+
+    constructor( address owner ) internal {
+        transferOwnership(owner);
+    }
+
+    modifier onlyOwner() {
+        require( msg.sender == _owner, "Caller must be the contract owner");
+        _;
+    }
+
     function transferOwnership(address newOwner) public onlyOwner {
         // TODO add functionality to transfer control of the contract to a newOwner.
         // make sure the new owner is a real address
+        require( newOwner != address(0), "Address of new owner must be valid");
+        //Saves old address for event
+        address oldOwner = _owner;
+        //Sets new address
+        _owner = newOwner;
+        //Emits event
+        emit OwnershipTransferred(oldOwner, _owner);
+
 
     }
 }
@@ -27,6 +48,62 @@ contract Ownable {
 //  3) create an internal constructor that sets the _paused variable to false
 //  4) create 'whenNotPaused' & 'paused' modifier that throws in the appropriate situation
 //  5) create a Paused & Unpaused event that emits the address that triggered the event
+
+contract Pausable is Ownable {
+
+    bool private _paused;
+
+
+    //Events of the pause actions
+    event Paused( address account );
+    event UnPaused( address account );
+
+
+    constructor() internal {
+        //Contract is not paused by default
+        _paused = false;
+    }
+
+    modifier whenNotPaused() {
+        require(!_paused, "Contract must not be paused" );
+        _;
+    }
+
+    modifier pPaused() {
+        require(_paused, "Contract must be paused" );
+        _;
+    }
+
+    function pause() public onlyOwner {
+        //Sets paused to true
+        _setPaused(true);
+    }
+
+    function unpause() public onlyOwner {
+        //Sets paused to false
+        _setPaused(false);
+    }
+
+    
+
+    function _setPaused( bool newValue ) private {
+        //We check we actually need to do something
+        require( newValue != _paused, "Contract pause value already as requested");
+
+        _paused = newValue;
+
+        if (_paused) {
+            //We are pausing the contract
+            emit Paused(msg.sender);
+        }
+        else
+        {
+            //We are unpausing the contract
+            emit UnPaused(msg.sender);
+        }
+    }
+
+}
 
 contract ERC165 {
     bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
@@ -415,7 +492,11 @@ contract ERC721Enumerable is ERC165, ERC721 {
 
 contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     
-    // TODO: Create private vars for token _name, _symbol, and _baseTokenURI (string)
+    // TODO: Create private vars for token _name, _symbol, and _baseTokenURI (string) => DONE
+
+    string private  _name;
+    string private _symbol;
+    string private _baseTokenURI;
 
     // TODO: create private mapping of tokenId's to token uri's called '_tokenURIs'
 
@@ -431,10 +512,28 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     constructor (string memory name, string memory symbol, string memory baseTokenURI) public {
         // TODO: set instance var values
 
+        _name = name;
+        _symbol = symbol;
+        _baseTokenURI = baseTokenURI;
+
         _registerInterface(_INTERFACE_ID_ERC721_METADATA);
     }
 
-    // TODO: create external getter functions for name, symbol, and baseTokenURI
+    // TODO: create external getter functions for name, symbol, and baseTokenURI => DONE
+
+    function name() external view returns(string memory) {
+        return _name;
+    }
+
+    function symbol() external view returns(string memory) {
+        return _symbol;
+    }
+
+    function baseTokenURI() external view returns(string memory) {
+        return _baseTokenURI;
+    }
+
+
 
     function tokenURI(uint256 tokenId) external view returns (string memory) {
         require(_exists(tokenId));
