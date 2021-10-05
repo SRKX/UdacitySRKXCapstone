@@ -180,29 +180,49 @@ contract ERC721 is Pausable, ERC165 {
     }
 
     function balanceOf(address owner) public view returns (uint256) {
-        // TODO return the token balance of given address
+        // TODO return the token balance of given address => DONE
         // TIP: remember the functions to use for Counters. you can refresh yourself with the link above
+        return _ownedTokensCount[ owner ].current();
     }
 
     function ownerOf(uint256 tokenId) public view returns (address) {
-        // TODO return the owner of the given tokenId
+        // TODO return the owner of the given tokenId => DONE
+        address owner = _tokenOwner[ tokenId ];
+        //We check there actually is an owner
+        require( owner != address(0), "Token has no owner" );
+        return owner;
+
     }
 
 //    @dev Approves another address to transfer the given token ID
     function approve(address to, uint256 tokenId) public {
+
+        //We safely get the owner of the token
+        address owner = ownerOf(tokenId);
         
-        // TODO require the given address to not be the owner of the tokenId
+        // TODO require the given address to not be the owner of the tokenId => DONE
+        require(owner != to, "Token cannot be sent to current owner");
 
-        // TODO require the msg sender to be the owner of the contract or isApprovedForAll() to be true
+        // TODO require the msg sender to be the owner of the contract or isApprovedForAll() to be true => DONE
+        require(owner == msg.sender || isApprovedForAll( owner, msg.sender ), "Sender does not have the permission to transfer the token");
 
-        // TODO add 'to' address to token approvals
 
-        // TODO emit Approval Event
+        // TODO add 'to' address to token approvals => DONE
+        _tokenApprovals[tokenId] = to;
+        
+
+        // TODO emit Approval Event => DONE
+        emit Approval(owner, to, tokenId);
 
     }
 
     function getApproved(uint256 tokenId) public view returns (address) {
-        // TODO return token approval if it exists
+        // TODO return token approval if it exists => DONE
+        address approved = _tokenApprovals[tokenId];
+        //We check the approved address is valid
+        require(approved!=address(0), "No approval for given token");
+        //We return the value
+        return approved;
     }
 
     /**
@@ -268,26 +288,40 @@ contract ERC721 is Pausable, ERC165 {
     // TIP: remember the functions to use for Counters. you can refresh yourself with the link above
     function _mint(address to, uint256 tokenId) internal {
 
-        // TODO revert if given tokenId already exists or given address is invalid
-  
-        // TODO mint tokenId to given address & increase token count of owner
+        // TODO revert if given tokenId already exists or given address is invalid => DONE
+        require(to != address(0), "Cannot mint to 0 address");
+        require(!_exists(tokenId), "Token already exists");
+        
+        // TODO mint tokenId to given address & increase token count of owner => DONE
+        _tokenOwner[tokenId] = to;
+        _ownedTokensCount[to].increment();
 
-        // TODO emit Transfer event
+        // TODO emit Transfer event => DONE
+        emit Transfer(address(0), to, tokenId);
     }
 
     // @dev Internal function to transfer ownership of a given token ID to another address.
     // TIP: remember the functions to use for Counters. you can refresh yourself with the link above
     function _transferFrom(address from, address to, uint256 tokenId) internal {
 
-        // TODO: require from address is the owner of the given token
-
-        // TODO: require token is being transfered to valid address
+        // TODO: require from address is the owner of the given token => DONE
+        //Gets valid owner
+        address owner = ownerOf(tokenId);
+        require(from == owner, "token not transferred from owner");
+    
+        // TODO: require token is being transfered to valid address => DONE
+        require(to!=address(0), "Token cannot be transferred to invalid address");
         
-        // TODO: clear approval
+        // TODO: clear approval =>DONE
+        delete _tokenApprovals[tokenId];
 
-        // TODO: update token counts & transfer ownership of the token ID 
+        // TODO: update token counts & transfer ownership of the token ID => DONE
+        _ownedTokensCount[owner].decrement();
+        _ownedTokensCount[to].increment();
+        _tokenOwner[tokenId] = to;
 
-        // TODO: emit correct event
+        // TODO: emit correct event => DONE
+        emit Transfer(owner, to, tokenId);
     }
 
     /**
@@ -499,6 +533,7 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     string private _baseTokenURI;
 
     // TODO: create private mapping of tokenId's to token uri's called '_tokenURIs'
+    mapping( uint256 => string ) _tokenURIs;
 
     bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
     /*
@@ -548,6 +583,12 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
         // see https://github.com/oraclize/ethereum-api/blob/master/oraclizeAPI_0.5.sol for strConcat()
     // require the token exists before setting
 
+    function setTokenURI( uint256 tokenId, string memory uri ) internal {
+        //Checks the token exists
+        require(_exists(tokenId), "Token does not exists");
+        _tokenURIs[tokenId] = strConcat(_baseTokenURI, uri);
+    }
+
 }
 
 //  TODO's: Create CustomERC721Token contract that inherits from the ERC721Metadata contract. You can name this contract as you please
@@ -560,4 +601,15 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
 //      -calls the superclass mint and setTokenURI functions
 
 
+contract JSUdacityERC721Token is ERC721Metadata {
 
+        constructor(string memory name, string memory symbol) ERC721Metadata( name, symbol, "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/") public {
+
+        }
+
+        function mint( address to, uint256 tokenId, string memory uri ) onlyOwner public returns(bool) {
+            _mint(to, tokenId);
+            setTokenURI(tokenId,uri);
+            return true;
+        }
+}
