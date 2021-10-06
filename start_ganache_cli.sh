@@ -1,0 +1,1 @@
+ganache-cli -m "cat apple people demon heart cream phone watch camera window pipe mic" -l 9999999 -e 100
