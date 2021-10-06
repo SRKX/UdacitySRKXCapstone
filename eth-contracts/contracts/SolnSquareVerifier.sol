@@ -1,10 +1,21 @@
 pragma solidity >=0.4.21 <0.6.0;
 
-// TODO define a contract call to the zokrates generated solidity contract <Verifier> or <renamedVerifier>
+import './ERC721Mintable.sol';
 
+// TODO define a contract call to the zokrates generated solidity contract <Verifier> or <renamedVerifier>
+import './verifier.sol';
 
 
 // TODO define another contract named SolnSquareVerifier that inherits from your ERC721Mintable class
+
+contract SolnSquareVerifier is JSUdacityERC721Token {
+
+    Verifier private verifierContract;
+
+    constructor(address verifierAddress, string memory name, string memory symbol) JSUdacityERC721Token(name, symbol) public {
+        verifierContract = Verifier(verifierAddress);
+    }
+}
 
 
 
