@@ -1,4 +1,4 @@
-var ERC721MintableComplete = artifacts.require('ERC721MintableComplete');
+var ERC721MintableComplete = artifacts.require('JSUdacityERC721Token');
 
 contract('TestERC721Mintable', accounts => {
 
@@ -7,7 +7,7 @@ contract('TestERC721Mintable', accounts => {
 
     describe('match erc721 spec', function () {
         beforeEach(async function () { 
-            this.contract = await ERC721MintableComplete.new({from: account_one});
+            this.contract = await JSUdacityERC721Token.new("TEST", "TST", {from: account_one});
 
             // TODO: mint multiple tokens
         })
