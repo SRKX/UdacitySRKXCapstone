@@ -7,16 +7,21 @@ import './verifier.sol';
 
 
 // TODO define another contract named SolnSquareVerifier that inherits from your ERC721Mintable class
-
+/*
 contract SolnSquareVerifier is JSUdacityERC721Token {
 
     Verifier private verifierContract;
 
+    
     constructor(address verifierAddress, string memory name, string memory symbol) JSUdacityERC721Token(name, symbol) public {
         verifierContract = Verifier(verifierAddress);
     }
+    
+    constructor(address verifierAddress) JSUdacityERC721Token() public {
+        verifierContract = Verifier(verifierAddress);
+    }
 }
-
+*/
 
 
 // TODO define a solutions struct that can hold an index & an address

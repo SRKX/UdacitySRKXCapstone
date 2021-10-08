@@ -69,7 +69,7 @@ contract Pausable is Ownable {
         _;
     }
 
-    modifier pPaused() {
+    modifier paused() {
         require(_paused, "Contract must be paused" );
         _;
     }
@@ -201,7 +201,7 @@ contract ERC721 is Pausable, ERC165 {
         address owner = ownerOf(tokenId);
         
         // TODO require the given address to not be the owner of the tokenId => DONE
-        require(owner != to, "Token cannot be sent to current owner");
+        require(owner != to, "Approver cannot be current owner");
 
         // TODO require the msg sender to be the owner of the contract or isApprovedForAll() to be true => DONE
         require(owner == msg.sender || isApprovedForAll( owner, msg.sender ), "Sender does not have the permission to transfer the token");
@@ -583,10 +583,10 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
         // see https://github.com/oraclize/ethereum-api/blob/master/oraclizeAPI_0.5.sol for strConcat()
     // require the token exists before setting
 
-    function setTokenURI( uint256 tokenId, string memory uri ) internal {
+    function setTokenURI( uint256 tokenId ) internal {
         //Checks the token exists
         require(_exists(tokenId), "Token does not exists");
-        _tokenURIs[tokenId] = strConcat(_baseTokenURI, uri);
+        _tokenURIs[tokenId] = strConcat(_baseTokenURI, uint2str(tokenId));
     }
 
 }
@@ -603,13 +603,21 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
 
 contract JSUdacityERC721Token is ERC721Metadata {
 
+        /*
         constructor(string memory name, string memory symbol) ERC721Metadata( name, symbol, "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/") public {
 
         }
+        */
+        
 
-        function mint( address to, uint256 tokenId, string memory uri ) onlyOwner public returns(bool) {
-            _mint(to, tokenId);
-            setTokenURI(tokenId,uri);
+        constructor() ERC721Metadata( "TEST", "TST", "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/") public {
+
+        }
+
+        function mint( address to, uint256 tokenId ) public onlyOwner  returns(bool) {
+            super._mint(to, tokenId);
+            setTokenURI(tokenId);
             return true;
         }
+
 }
