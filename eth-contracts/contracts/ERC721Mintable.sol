@@ -18,8 +18,9 @@ contract Ownable {
 
     event OwnershipTransferred( address previousOwner, address newOwner);
 
-    constructor( address owner ) internal {
-        transferOwnership(owner);
+    constructor() internal {
+        _owner = msg.sender;
+        emit OwnershipTransferred(address(0), _owner);
     }
 
     modifier onlyOwner() {
@@ -603,17 +604,11 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
 
 contract JSUdacityERC721Token is ERC721Metadata {
 
-        /*
+        
         constructor(string memory name, string memory symbol) ERC721Metadata( name, symbol, "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/") public {
 
         }
-        */
         
-
-        constructor() ERC721Metadata( "TEST", "TST", "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/") public {
-
-        }
-
         function mint( address to, uint256 tokenId ) public onlyOwner  returns(bool) {
             super._mint(to, tokenId);
             setTokenURI(tokenId);
