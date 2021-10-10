@@ -41,6 +41,10 @@ contract Ownable {
 
 
     }
+
+    function owner() public view returns(address) {
+        return _owner;
+    }
 }
 
 //  TODO's: Create a Pausable contract that inherits from the Ownable contract
