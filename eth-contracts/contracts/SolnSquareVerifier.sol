@@ -55,7 +55,7 @@ contract SolnSquareVerifier is JSUdacityERC721Token {
             uint[2][2] memory b,
             uint[2] memory c,
             uint[2] memory input
-        ) public returns (bool r) {
+        ) public returns (bool) {
 
         //We generate a hash which represents this proof using the inputs
         bytes32 solutionHash = keccak256(abi.encodePacked(input[0],input[1]));
@@ -104,7 +104,7 @@ contract SolnSquareVerifier is JSUdacityERC721Token {
         //We check the solver is the current sender
         require(sol.solver == msg.sender, "Solution was not added by current sender");
         //Finally, we check that the solution has not already been used to mint
-        require(sol.wasMinted, "Solution already used for minting");
+        require(!sol.wasMinted, "Solution already used for minting");
 
         //If all of the above passed successfully, we mint
         bool result = mint(to, sol.index);
