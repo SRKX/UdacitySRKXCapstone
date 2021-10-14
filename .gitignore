@@ -2,3 +2,5 @@ node_modules
 
 eth-contracts/build
 eth-contracts/build/contracts
+
+mingConfig.json
